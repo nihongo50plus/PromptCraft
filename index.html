@@ -1,178 +1,1267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>PromptCraft | AI Intelligence Studio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script type="module">
-        // Import both the brain (pipeline) and the settings (env)
-        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
-        
-        // This MUST happen before the pipeline starts to fix the Load Error
-        env.allowLocalModels = false;
-        env.useBrowserCache = true;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PromptCraft — AI Prompt Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #2a2a3a;
+    --accent: #c8f53a;
+    --accent2: #7c3aed;
+    --text: #e8e8f0;
+    --muted: #6b6b85;
+    --danger: #ff4d6d;
+    --glow: 0 0 30px rgba(200,245,58,0.15);
+  }
 
-        // Share these with the rest of your code
-        window.pipeline = pipeline;
-    </script>
-    <style>
-        body { background: #0b111b; color: #e2e8f0; font-family: 'Inter', sans-serif; }
-        .glass-card { background: rgba(30, 41, 59, 0.45); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .prompt-output { background: #0f172a; border-left: 4px solid #3b82f6; white-space: pre-wrap; }
-        select, input { background: #1e293b !important; color: white !important; border: 1px solid #334155 !important; }
-    </style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,245,58,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,245,58,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.5;
+  }
+
+  header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.8);
+    backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 3px;
+    color: var(--text);
+  }
+
+  .logo span { color: var(--accent); }
+
+  .header-badge {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(200,245,58,0.3);
+    padding: 4px 10px;
+    border-radius: 2px;
+    background: rgba(200,245,58,0.05);
+  }
+
+  main {
+    position: relative;
+    z-index: 5;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* ── LEFT PANEL ── */
+  .panel-left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 40px;
+  }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  /* API Key */
+  .api-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+  }
+
+  .api-block .section-label { color: var(--accent); }
+
+  .api-input-wrap {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .api-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .api-input:focus { border-color: var(--accent); }
+
+  .api-toggle {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 12px;
+    transition: color 0.2s;
+  }
+
+  .api-toggle:hover { color: var(--accent); }
+
+  .api-note {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  .api-note a { color: var(--accent); text-decoration: none; }
+
+  /* Upload area */
+  .upload-area {
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+
+  .upload-area:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  .upload-area.dragover {
+    border-color: var(--accent);
+    background: rgba(200,245,58,0.05);
+  }
+
+  .upload-inner {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-height: 160px;
+    justify-content: center;
+  }
+
+  .upload-icon {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 18px;
+  }
+
+  .upload-text {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .upload-text strong { color: var(--text); font-weight: 500; }
+
+  #preview-img {
+    width: 100%;
+    max-height: 280px;
+    object-fit: cover;
+    display: none;
+    border-radius: 0;
+  }
+
+  #preview-img.active { display: block; }
+
+  .preview-bar {
+    display: none;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .preview-bar.active { display: flex; }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  /* Controls */
+  .controls-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .control-group { display: flex; flex-direction: column; gap: 8px; }
+
+  select, .select-custom {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 10px 14px;
+    width: 100%;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b85' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    transition: border-color 0.2s;
+  }
+
+  select:focus { border-color: var(--accent); }
+
+  /* Style chips */
+  .style-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .style-chip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  .style-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .style-chip.active {
+    background: rgba(200,245,58,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Generate button */
+  .generate-btn {
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    padding: 16px 24px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .generate-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.4s;
+  }
+
+  .generate-btn:hover::before { transform: translateX(100%); }
+  .generate-btn:hover { box-shadow: 0 0 30px rgba(200,245,58,0.4); }
+  .generate-btn:disabled {
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ── RIGHT PANEL ── */
+  .panel-right { display: flex; flex-direction: column; gap: 24px; }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .output-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--text);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+  }
+
+  .status-dot.active { background: var(--accent); animation: pulse 1.5s infinite; }
+  .status-dot.done { background: var(--accent); animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* Output area */
+  .output-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-height: 300px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .output-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    gap: 16px;
+    color: var(--muted);
+  }
+
+  .placeholder-icon {
+    font-size: 32px;
+    opacity: 0.3;
+  }
+
+  .placeholder-text {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Loading animation */
+  .loading-wrap {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    gap: 20px;
+  }
+
+  .loading-wrap.active { display: flex; }
+
+  .scanner {
+    width: 200px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .scanner-bar {
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scan 1.5s ease-in-out infinite;
+  }
+
+  @keyframes scan {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+  }
+
+  .loading-text {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    animation: blink 1s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* Result */
+  .result-wrap {
+    display: none;
+    padding: 28px;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .result-wrap.active { display: flex; }
+
+  .result-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .meta-tag {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    background: rgba(200,245,58,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(200,245,58,0.2);
+  }
+
+  .meta-tag.platform { background: rgba(124,58,237,0.1); color: #a78bfa; border-color: rgba(124,58,237,0.2); }
+
+  .prompt-text {
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--text);
+    white-space: pre-wrap;
+    border-left: 2px solid var(--accent);
+    padding-left: 16px;
+  }
+
+  /* Section dividers */
+  .prompt-section {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .section-header {
+    padding: 10px 16px;
+    background: rgba(200,245,58,0.05);
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .section-content {
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+
+  /* Actions */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn-copy, .btn-secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-copy:hover, .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-copy.copied {
+    background: rgba(200,245,58,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Error */
+  .error-wrap {
+    display: none;
+    padding: 28px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .error-wrap.active { display: flex; }
+
+  .error-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--danger);
+  }
+
+  .error-msg {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 480px;
+  }
+
+  /* Token counter */
+  .token-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .token-num { color: var(--accent); font-weight: 500; }
+
+  /* History */
+  .history-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .history-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .clear-history {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+
+  .clear-history:hover { opacity: 1; }
+
+  .history-list { max-height: 240px; overflow-y: auto; }
+
+  .history-item {
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .history-item:hover { background: var(--surface2); }
+
+  .history-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .history-info { flex: 1; min-width: 0; }
+
+  .history-platform {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .history-preview {
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+
+  .history-empty {
+    padding: 24px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; padding: 20px; }
+    .panel-left { position: static; }
+    header { padding: 16px 20px; }
+  }
+</style>
 </head>
-<body class="p-6 md:p-10">
+<body>
+<div class="noise"></div>
 
-    <header class="max-w-6xl mx-auto flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
-        <h1 class="text-2xl font-bold tracking-tighter uppercase">Prompt<span class="text-blue-500">Craft</span></h1>
-        <div id="status" class="text-[10px] font-bold text-yellow-500 bg-yellow-500/10 px-4 py-1.5 rounded-full border border-yellow-500/20">
-            SYSTEM INITIALIZING...
+<header>
+  <div class="logo">Prompt<span>Craft</span></div>
+  <div class="header-badge">Standalone Intelligence Studio</div>
+</header>
+
+<main>
+  <!-- LEFT PANEL -->
+  <div class="panel-left">
+
+    <!-- API Key -->
+    <div class="api-block">
+      <div class="section-label">⚡ Anthropic API Key</div>
+      <div class="api-input-wrap">
+        <input type="password" id="api-key" class="api-input" placeholder="sk-ant-api03-..." autocomplete="off">
+        <button class="api-toggle" id="toggle-key" title="Show/hide key">👁</button>
+      </div>
+      <div class="api-note">
+        Your key stays in the browser — never sent anywhere except <strong>api.anthropic.com</strong>.<br>
+        Get one at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+      </div>
+    </div>
+
+    <!-- Image Upload -->
+    <div class="section-label">① Upload Image</div>
+    <div class="upload-area" id="upload-area">
+      <img id="preview-img" alt="Preview">
+      <div class="upload-inner" id="upload-inner">
+        <div class="upload-icon">⊕</div>
+        <div class="upload-text">
+          <strong>Drop image here</strong><br>
+          or click to browse<br>
+          <span style="font-size:10px;opacity:0.6">JPG · PNG · WEBP · GIF</span>
         </div>
-    </header>
+      </div>
+      <div class="preview-bar" id="preview-bar">
+        <span id="file-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;"></span>
+        <button class="remove-btn" id="remove-btn">✕ REMOVE</button>
+      </div>
+    </div>
+    <input type="file" id="file-input" accept="image/*" style="display:none">
 
-    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        <section class="lg:col-span-4 space-y-6">
-            <div class="glass-card p-6 rounded-2xl shadow-2xl">
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-xs font-bold mb-2 text-blue-400 uppercase">1. Load Image</label>
-                        <input type="file" id="imageLoader" accept="image/*" class="w-full text-xs p-2 rounded-lg cursor-pointer file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2 file:mr-2">
-                        <div id="previewContainer" class="mt-3 hidden">
-                            <img id="imgPreview" class="w-full h-32 object-cover rounded-lg border border-slate-700">
-                        </div>
-                    </div>
+    <!-- Controls -->
+    <div class="controls-block">
+      <div class="control-group">
+        <div class="section-label">② Platform</div>
+        <select id="platform">
+          <option value="Stable Diffusion">Stable Diffusion</option>
+          <option value="Midjourney">Midjourney</option>
+          <option value="Flux.1">Flux.1</option>
+          <option value="Perchance">Perchance</option>
+          <option value="DALL-E 3">DALL-E 3</option>
+          <option value="Adobe Firefly">Adobe Firefly</option>
+          <option value="Leonardo AI">Leonardo AI</option>
+          <option value="Kling AI">Kling AI</option>
+          <option value="Runway Gen-3">Runway Gen-3</option>
+        </select>
+      </div>
 
-                    <div>
-                        <label class="block text-xs font-bold mb-2 text-slate-400 uppercase">2. Define Platform</label>
-                        <select id="platform" class="w-full p-3 rounded-xl text-sm">
-                            <option>Perchance</option>
-                            <option>Stable Diffusion</option>
-                            <option>Midjourney</option>
-                            <option>Flux.1</option>
-                        </select>
-                    </div>
+      <div class="control-group">
+        <div class="section-label">③ Strategy</div>
+        <select id="strategy">
+          <option value="original">Original — describe as-is</option>
+          <option value="enhanced">Enhanced — improve composition</option>
+          <option value="cinematic">Cinematic — dramatic lighting & mood</option>
+          <option value="detailed">Ultra-detailed — maximum tags</option>
+        </select>
+      </div>
 
-                    <div>
-                        <label class="block text-xs font-bold mb-2 text-slate-400 uppercase">3. Strategy</label>
-                        <select id="strategy" onchange="document.getElementById('styleNode').classList.toggle('hidden', this.value === 'Original')" class="w-full p-3 rounded-xl text-sm">
-                            <option value="Original">Original (As Is)</option>
-                            <option value="Personalized">Personalized</option>
-                        </select>
-                    </div>
+      <div class="control-group">
+        <div class="section-label">④ Art Style</div>
+        <div class="style-grid" id="style-grid">
+          <button class="style-chip active" data-style="Photorealistic">Photorealistic</button>
+          <button class="style-chip" data-style="Anime / Manga">Anime / Manga</button>
+          <button class="style-chip" data-style="3D Render / CGI">3D Render / CGI</button>
+          <button class="style-chip" data-style="Cyberpunk">Cyberpunk</button>
+          <button class="style-chip" data-style="Watercolor">Watercolor</button>
+          <button class="style-chip" data-style="Oil Painting">Oil Painting</button>
+          <button class="style-chip" data-style="Comic Book">Comic Book</button>
+          <button class="style-chip" data-style="Hyperrealism">Hyperrealism</button>
+        </div>
+      </div>
+    </div>
 
-                    <div id="styleNode" class="hidden">
-                        <label class="block text-xs font-bold mb-2 text-purple-400 uppercase">4. Select Art Style</label>
-                        <select id="artStyle" class="w-full p-3 rounded-xl text-sm">
-                            <option>Photorealistic</option>
-                            <option>3D Render / CGI</option>
-                            <option>Anime / Manga</option>
-                            <option>Cyberpunk</option>
-                        </select>
-                    </div>
+    <button class="generate-btn" id="gen-btn" disabled>GENERATE PROMPT</button>
 
-                    <button onclick="runAnalysis()" id="genBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg transition-all text-white uppercase text-sm">
-                        Generate Prompt
-                    </button>
-                </div>
-            </div>
-        </section>
+  </div>
 
-        <section class="lg:col-span-8">
-            <div class="glass-card p-8 rounded-3xl h-full flex flex-col border border-blue-500/20">
-                <h2 class="text-3xl font-bold mb-6">Generated <span class="text-blue-500">Output</span></h2>
-                <div id="output" class="prompt-output p-8 rounded-2xl text-slate-300 text-sm md:text-base leading-relaxed flex-grow italic">
-                    Load an image and click generate. The first run will take a moment to download the vision model (~20MB).
-                </div>
-                <button onclick="copyOutput()" class="mt-6 bg-slate-800 hover:bg-slate-700 py-3 rounded-xl font-bold uppercase text-xs transition-colors">
-                    Copy to Clipboard
-                </button>
-            </div>
-        </section>
-    </main>
+  <!-- RIGHT PANEL -->
+  <div class="panel-right">
 
-    <script>
-        let detector;
-        const status = document.getElementById('status');
+    <div class="output-header">
+      <div class="output-title">Generated Output</div>
+      <div class="status-dot" id="status-dot"></div>
+    </div>
 
-        // Initialize the vision model
-        async function initModel() {
-            try {
-                // Wait for the pipeline to be available from the module script above
-                if (!window.pipeline) {
-                    setTimeout(initModel, 100);
-                    return;
-                }
-                detector = await window.pipeline('image-to-text', 'Xenova/vit-gpt2-image-captioning');
-                status.innerText = "SYSTEM READY";
-                status.className = "text-[10px] font-bold text-green-500 bg-green-500/10 px-4 py-1.5 rounded-full border border-green-500/20";
-            } catch (e) {
-                status.innerText = "CONNECTION ERROR";
-                status.className = "text-[10px] font-bold text-red-500 bg-red-500/10 px-4 py-1.5 rounded-full border border-red-500/20";
-                console.error(e);
+    <!-- Output area -->
+    <div class="output-area" id="output-area">
+      <div class="output-placeholder" id="placeholder">
+        <div class="placeholder-icon">◈</div>
+        <div class="placeholder-text">Awaiting image analysis</div>
+      </div>
+
+      <div class="loading-wrap" id="loading">
+        <div class="scanner"><div class="scanner-bar"></div></div>
+        <div class="loading-text" id="loading-text">Analyzing image...</div>
+      </div>
+
+      <div class="result-wrap" id="result">
+        <div class="result-meta" id="result-meta"></div>
+        <div id="prompt-sections"></div>
+        <div class="action-row">
+          <button class="btn-copy" id="copy-btn">⊕ Copy Full Prompt</button>
+          <button class="btn-secondary" id="copy-neg-btn" style="display:none">− Copy Negative</button>
+        </div>
+      </div>
+
+      <div class="error-wrap" id="error-wrap">
+        <div class="error-title">ERROR</div>
+        <div class="error-msg" id="error-msg"></div>
+      </div>
+    </div>
+
+    <!-- Token info -->
+    <div class="token-bar" id="token-bar" style="display:none">
+      <span>TOKENS USED:</span>
+      <span class="token-num" id="token-count">—</span>
+      <span style="margin-left:auto;">MODEL: claude-sonnet-4-20250514</span>
+    </div>
+
+    <!-- History -->
+    <div class="history-section">
+      <div class="history-header">
+        <span>Session History</span>
+        <button class="clear-history" id="clear-history">CLEAR ALL</button>
+      </div>
+      <div class="history-list" id="history-list">
+        <div class="history-empty">No prompts generated yet</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ── State ──────────────────────────────────────────────────────
+let imageBase64 = null;
+let imageMediaType = null;
+let selectedStyle = 'Photorealistic';
+let history = [];
+let fullPromptText = '';
+let negativePromptText = '';
+
+// ── DOM refs ────────────────────────────────────────────────────
+const apiKeyInput   = document.getElementById('api-key');
+const toggleKeyBtn  = document.getElementById('toggle-key');
+const uploadArea    = document.getElementById('upload-area');
+const uploadInner   = document.getElementById('upload-inner');
+const fileInput     = document.getElementById('file-input');
+const previewImg    = document.getElementById('preview-img');
+const previewBar    = document.getElementById('preview-bar');
+const fileNameEl    = document.getElementById('file-name');
+const removeBtn     = document.getElementById('remove-btn');
+const platformSel   = document.getElementById('platform');
+const strategySel   = document.getElementById('strategy');
+const styleGrid     = document.getElementById('style-grid');
+const genBtn        = document.getElementById('gen-btn');
+const placeholder   = document.getElementById('placeholder');
+const loadingEl     = document.getElementById('loading');
+const loadingText   = document.getElementById('loading-text');
+const resultEl      = document.getElementById('result');
+const resultMeta    = document.getElementById('result-meta');
+const promptSecs    = document.getElementById('prompt-sections');
+const copyBtn       = document.getElementById('copy-btn');
+const copyNegBtn    = document.getElementById('copy-neg-btn');
+const errorWrap     = document.getElementById('error-wrap');
+const errorMsg      = document.getElementById('error-msg');
+const statusDot     = document.getElementById('status-dot');
+const tokenBar      = document.getElementById('token-bar');
+const tokenCount    = document.getElementById('token-count');
+const historyList   = document.getElementById('history-list');
+const clearHistory  = document.getElementById('clear-history');
+
+// ── API key toggle ──────────────────────────────────────────────
+toggleKeyBtn.addEventListener('click', () => {
+  apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
+});
+
+// ── Upload ──────────────────────────────────────────────────────
+uploadArea.addEventListener('click', (e) => {
+  if (e.target === removeBtn) return;
+  fileInput.click();
+});
+
+uploadArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+
+uploadArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) loadImage(file);
+});
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) loadImage(fileInput.files[0]);
+});
+
+removeBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  imageBase64 = null;
+  imageMediaType = null;
+  previewImg.src = '';
+  previewImg.classList.remove('active');
+  previewBar.classList.remove('active');
+  uploadInner.style.display = 'flex';
+  fileInput.value = '';
+  updateGenBtn();
+});
+
+function loadImage(file) {
+  imageMediaType = file.type;
+  fileNameEl.textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imageBase64 = e.target.result.split(',')[1];
+    previewImg.src = e.target.result;
+    previewImg.classList.add('active');
+    previewBar.classList.add('active');
+    uploadInner.style.display = 'none';
+    updateGenBtn();
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Style chips ─────────────────────────────────────────────────
+styleGrid.querySelectorAll('.style-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    styleGrid.querySelectorAll('.style-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    selectedStyle = chip.dataset.style;
+  });
+});
+
+// ── Enable button ───────────────────────────────────────────────
+function updateGenBtn() {
+  genBtn.disabled = !imageBase64;
+}
+
+// ── Build system prompt ─────────────────────────────────────────
+function buildSystemPrompt(platform, strategy, style) {
+  const strategyInstructions = {
+    original: "Describe the image faithfully and accurately as-is.",
+    enhanced: "Enhance the composition, lighting, and details to maximize visual impact.",
+    cinematic: "Apply cinematic framing, dramatic lighting, atmospheric depth and mood.",
+    detailed: "Generate maximum detail with extensive technical tags and descriptors."
+  };
+
+  const platformTips = {
+    "Stable Diffusion": "Use comma-separated tags, parentheses for emphasis like (masterpiece:1.2), and include technical camera/lens details.",
+    "Midjourney": "Use descriptive phrases separated by commas, end with --ar ratio and --v 6 parameters. Avoid colons in prompts.",
+    "Flux.1": "Use natural descriptive sentences. Flux responds best to detailed prose descriptions.",
+    "Perchance": "Use comma-separated descriptors optimized for Perchance image generator syntax.",
+    "DALL-E 3": "Write a clear, detailed natural language description as if describing to an artist.",
+    "Adobe Firefly": "Use clean descriptive language, mention specific styles and moods clearly.",
+    "Leonardo AI": "Use comma-separated tags with quality boosters like 'ultra detailed, 8k, cinematic'.",
+    "Kling AI": "For video generation: describe motion, camera movement, and temporal sequence.",
+    "Runway Gen-3": "Describe the scene with motion cues and cinematic directions for video output."
+  };
+
+  return `You are PromptCraft, an elite AI art prompt engineer. Your specialty is analyzing images and generating optimized prompts for AI art generators.
+
+TASK: Analyze the provided image and generate a high-quality ${platform} prompt.
+
+STRATEGY: ${strategyInstructions[strategy]}
+
+ART STYLE: Apply ${style} aesthetic to the prompt.
+
+PLATFORM NOTES: ${platformTips[platform] || "Use appropriate syntax for this platform."}
+
+OUTPUT FORMAT — respond ONLY with this exact JSON structure, no markdown, no extra text:
+{
+  "main_prompt": "The primary prompt string optimized for ${platform}",
+  "negative_prompt": "Elements to avoid (comma-separated), or empty string if not applicable to platform",
+  "style_tags": ["tag1", "tag2", "tag3"],
+  "quality_tags": ["tag1", "tag2"],
+  "analysis": "1-2 sentence description of what you detected in the image"
+}`;
+}
+
+// ── Loading messages ────────────────────────────────────────────
+const loadingMessages = [
+  "Analyzing pixel composition...",
+  "Extracting visual DNA...",
+  "Mapping semantic regions...",
+  "Calibrating prompt weights...",
+  "Synthesizing art descriptors...",
+  "Optimizing token structure..."
+];
+
+let loadingInterval;
+function startLoading() {
+  let i = 0;
+  loadingText.textContent = loadingMessages[0];
+  loadingInterval = setInterval(() => {
+    i = (i + 1) % loadingMessages.length;
+    loadingText.textContent = loadingMessages[i];
+  }, 1500);
+}
+
+function stopLoading() { clearInterval(loadingInterval); }
+
+// ── Show states ─────────────────────────────────────────────────
+function showState(state) {
+  placeholder.style.display = 'none';
+  loadingEl.classList.remove('active');
+  resultEl.classList.remove('active');
+  errorWrap.classList.remove('active');
+  statusDot.className = 'status-dot';
+
+  if (state === 'placeholder') {
+    placeholder.style.display = 'flex';
+  } else if (state === 'loading') {
+    loadingEl.classList.add('active');
+    statusDot.classList.add('active');
+    startLoading();
+  } else if (state === 'result') {
+    resultEl.classList.add('active');
+    statusDot.classList.add('done');
+    stopLoading();
+  } else if (state === 'error') {
+    errorWrap.classList.add('active');
+    stopLoading();
+  }
+}
+
+// ── Generate ────────────────────────────────────────────────────
+genBtn.addEventListener('click', generatePrompt);
+
+async function generatePrompt() {
+  const apiKey = apiKeyInput.value.trim();
+  if (!apiKey) {
+    showError("Enter your Anthropic API key above.\nGet one at console.anthropic.com");
+    return;
+  }
+  if (!imageBase64) {
+    showError("Please upload an image first.");
+    return;
+  }
+
+  const platform = platformSel.value;
+  const strategy = strategySel.value;
+
+  genBtn.disabled = true;
+  tokenBar.style.display = 'none';
+  showState('loading');
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1200,
+        system: buildSystemPrompt(platform, strategy, selectedStyle),
+        messages: [{
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: imageMediaType,
+                data: imageBase64
+              }
+            },
+            {
+              type: "text",
+              text: `Generate a ${platform} prompt for this image. Use ${selectedStyle} style. Strategy: ${strategy}.`
             }
-        }
-        initModel();
+          ]
+        }]
+      })
+    });
 
-        // Image Preview Logic
-        document.getElementById('imageLoader').onchange = function(e) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                document.getElementById('imgPreview').src = reader.result;
-                document.getElementById('previewContainer').classList.remove('hidden');
-            }
-            reader.readAsDataURL(e.target.files[0]);
-        };
+    const data = await response.json();
 
-        // Copy Logic
-        function copyOutput() {
-            const text = document.getElementById('output').innerText;
-            navigator.clipboard.writeText(text);
-            const btn = event.target;
-            const oldText = btn.innerText;
-            btn.innerText = "COPIED!";
-            setTimeout(() => btn.innerText = oldText, 2000);
-        }
+    if (!response.ok) {
+      const msg = data.error?.message || `HTTP ${response.status}`;
+      showError(msg);
+      return;
+    }
 
-        async function runAnalysis() {
-            const file = document.getElementById('imageLoader').files[0];
-            if (!file) return alert("Load an image first!");
-            if (!detector) return alert("AI Engine is still loading. Please wait...");
+    // Extract text
+    const rawText = data.content.map(b => b.text || '').join('');
 
-            const btn = document.getElementById('genBtn');
-            const output = document.getElementById('output');
-            
-            btn.innerText = "ANALYZING...";
-            btn.disabled = true;
+    // Token info
+    if (data.usage) {
+      tokenCount.textContent = `${data.usage.input_tokens} in / ${data.usage.output_tokens} out`;
+      tokenBar.style.display = 'flex';
+    }
 
-            try {
-                const url = document.getElementById('imgPreview').src;
-                const result = await detector(url);
-                const description = result[0].generated_text;
+    // Parse JSON
+    let parsed;
+    try {
+      const clean = rawText.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch {
+      // Fallback: use raw text as main prompt
+      parsed = { main_prompt: rawText, negative_prompt: '', style_tags: [], quality_tags: [], analysis: '' };
+    }
 
-                const platform = document.getElementById('platform').value;
-                const strategy = document.getElementById('strategy').value;
-                const style = document.getElementById('artStyle').value;
+    renderResult(parsed, platform, strategy);
 
-                // Crafting Logic
-                let final = (strategy === "Original") ? description : `A professional ${style} of ${description}`;
-                
-                if (platform === "Midjourney") final += " --v 6.0 --ar 16:9";
-                if (platform === "Stable Diffusion" || platform === "Perchance") {
-                    final += ", highly detailed, masterpiece, 8k resolution, cinematic lighting, sharp focus";
-                }
+  } catch (err) {
+    showError(err.message || "Network error. Check your connection and API key.");
+  } finally {
+    genBtn.disabled = false;
+    updateGenBtn();
+  }
+}
 
-                output.innerText = final;
-                output.classList.remove('italic');
-            } catch (err) {
-                output.innerText = "Error analyzing image. Please try a different file.";
-                console.error(err);
-            }
+// ── Render result ───────────────────────────────────────────────
+function renderResult(data, platform, strategy) {
+  fullPromptText = data.main_prompt;
+  negativePromptText = data.negative_prompt || '';
 
-            btn.innerText = "GENERATE PROMPT";
-            btn.disabled = false;
-        }
-    </script>
+  // Meta tags
+  resultMeta.innerHTML = `
+    <span class="meta-tag platform">${platform}</span>
+    <span class="meta-tag">${selectedStyle}</span>
+    <span class="meta-tag">${strategy}</span>
+  `;
+
+  // Sections
+  promptSecs.innerHTML = '';
+
+  // Analysis
+  if (data.analysis) {
+    promptSecs.appendChild(makeSection('Image Analysis', data.analysis));
+  }
+
+  // Main prompt
+  promptSecs.appendChild(makeSection('Main Prompt', data.main_prompt));
+
+  // Style + quality tags
+  const allTags = [...(data.style_tags || []), ...(data.quality_tags || [])];
+  if (allTags.length) {
+    promptSecs.appendChild(makeSection('Style & Quality Tags', allTags.join(', ')));
+  }
+
+  // Negative prompt
+  if (negativePromptText) {
+    copyNegBtn.style.display = 'flex';
+    promptSecs.appendChild(makeSection('Negative Prompt', negativePromptText, true));
+  } else {
+    copyNegBtn.style.display = 'none';
+  }
+
+  showState('result');
+
+  // Add to history
+  addToHistory(platform, data.main_prompt);
+}
+
+function makeSection(title, content, isNeg = false) {
+  const div = document.createElement('div');
+  div.className = 'prompt-section';
+  div.style.marginBottom = '12px';
+  div.innerHTML = `
+    <div class="section-header">
+      <span>${title}</span>
+      <button class="btn-copy" style="padding:2px 10px;font-size:9px;border:none;background:transparent;cursor:pointer;color:var(--muted)" onclick="copyText(this, \`${escapeBacktick(content)}\`)">COPY</button>
+    </div>
+    <div class="section-content" style="${isNeg ? 'color:var(--danger);opacity:0.8' : ''}">${escapeHtml(content)}</div>
+  `;
+  return div;
+}
+
+function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeBacktick(s) { return s.replace(/`/g,'\\`').replace(/\\/g,'\\\\'); }
+
+window.copyText = function(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    btn.style.color = 'var(--accent)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = 'var(--muted)'; }, 1500);
+  });
+};
+
+// Copy buttons
+copyBtn.addEventListener('click', () => {
+  if (!fullPromptText) return;
+  navigator.clipboard.writeText(fullPromptText).then(() => {
+    copyBtn.classList.add('copied');
+    copyBtn.textContent = '✓ Copied!';
+    setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.textContent = '⊕ Copy Full Prompt'; }, 2000);
+  });
+});
+
+copyNegBtn.addEventListener('click', () => {
+  if (!negativePromptText) return;
+  navigator.clipboard.writeText(negativePromptText).then(() => {
+    const orig = copyNegBtn.textContent;
+    copyNegBtn.textContent = '✓ Copied!';
+    setTimeout(() => { copyNegBtn.textContent = orig; }, 2000);
+  });
+});
+
+// ── Error ───────────────────────────────────────────────────────
+function showError(msg) {
+  errorMsg.textContent = msg;
+  showState('error');
+}
+
+// ── History ─────────────────────────────────────────────────────
+function addToHistory(platform, prompt) {
+  const item = {
+    platform,
+    preview: prompt.substring(0, 80) + (prompt.length > 80 ? '…' : ''),
+    thumb: previewImg.src,
+    full: prompt
+  };
+  history.unshift(item);
+  if (history.length > 10) history.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  if (!history.length) {
+    historyList.innerHTML = '<div class="history-empty">No prompts generated yet</div>';
+    return;
+  }
+  historyList.innerHTML = history.map((item, i) => `
+    <div class="history-item" onclick="loadHistoryItem(${i})">
+      <img class="history-thumb" src="${item.thumb}" alt="">
+      <div class="history-info">
+        <div class="history-platform">${item.platform}</div>
+        <div class="history-preview">${escapeHtml(item.preview)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.loadHistoryItem = function(i) {
+  const item = history[i];
+  navigator.clipboard.writeText(item.full);
+  // Flash feedback
+  const el = historyList.querySelectorAll('.history-item')[i];
+  el.style.background = 'rgba(200,245,58,0.08)';
+  setTimeout(() => el.style.background = '', 600);
+};
+
+clearHistory.addEventListener('click', () => {
+  history = [];
+  renderHistory();
+});
+</script>
 </body>
 </html>
