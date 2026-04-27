@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PromptCraft | Standalone Intelligence Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+        window.pipeline = pipeline;
+    </script>
+    <style>
+        body { background: #0b111b; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+        .glass-card { background: rgba(30, 41, 59, 0.45); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .prompt-output { background: #0f172a; border-left: 4px solid #3b82f6; white-space: pre-wrap; }
+        input, select, textarea { background: #1e293b !important; border: 1px solid #334155 !important; color: white !important; outline: none; }
+    </style>
+</head>
+<body class="p-6 md:p-10">
+
+    <header class="max-w-6xl mx-auto flex justify-between items-center mb-10 border-b border-slate-800 pb-6">
+        <h1 class="text-2xl font-bold tracking-tighter uppercase">Prompt<span class="text-blue-500">Craft</span></h1>
+        <div id="status" class="text-[10px] font-bold text-yellow-500 bg-yellow-500/10 px-4 py-1.5 rounded-full border border-yellow-500/20">
+            SYSTEM INITIALIZING...
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <section class="lg:col-span-4 space-y-6">
+            <div class="glass-card p-6 rounded-2xl shadow-2xl">
+                
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold mb-2 text-blue-400 uppercase">1. Load Image</label>
+                        <input type="file" id="imageLoader" accept="image/*" class="w-full text-xs p-2 rounded-lg cursor-pointer file:bg-blue-600 file:border-0 file:rounded file:text-white file:px-2 file:mr-2">
+                        <div id="previewContainer" class="mt-3 hidden">
+                            <img id="imgPreview" class="w-full h-32 object-cover rounded-lg border border-slate-700">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold mb-2 text-slate-400 uppercase">2. Define Platform</label>
+                        <select id="platform" class="w-full p-3 rounded-xl text-sm">
+                            <option>Perchance</option>
+                            <option>Stable Diffusion</option>
+                            <option>Midjourney</option>
+                            <option>Flux.1</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold mb-2 text-slate-400 uppercase">3. Strategy</label>
+                        <select id="strategy" onchange="document.getElementById('styleNode').classList.toggle('hidden', this.value === 'Original')" class="w-full p-3 rounded-xl text-sm">
+                            <option value="Original">Original (As Is)</option>
+                            <option value="Personalized">Personalized</option>
+                        </select>
+                    </div>
+
+                    <div id="styleNode" class="hidden">
+                        <label class="block text-xs font-bold mb-2 text-purple-400 uppercase">4. Select Art Style</label>
+                        <select id="artStyle" class="w-full p-3 rounded-xl text-sm">
+                            <option>Photorealistic</option>
+                            <option>3D Render / CGI</option>
+                            <option>Anime / Manga</option>
+                            <option>Cyberpunk</option>
+                        </select>
+                    </div>
+
+                    <button onclick="runAnalysis()" id="genBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold shadow-lg transition-all">
+                        GENERATE PROMPT
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="lg:col-span-8">
+            <div class="glass-card p-8 rounded-3xl h-full flex flex-col">
+                <h2 class="text-3xl font-bold mb-6">Generated <span class="text-blue-500">Output</span></h2>
+                <div id="output" class="prompt-output p-8 rounded-2xl text-slate-300 text-sm md:text-base leading-relaxed flex-grow italic">
+                    Load an image and click generate. The first run will take a moment to download the vision model (~20MB).
+                </div>
+                <button onclick="navigator.clipboard.writeText(document.getElementById('output').innerText); alert('Copied!')" class="mt-6 bg-slate-800 py-3 rounded-xl font-bold uppercase text-xs">Copy to Clipboard</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let detector;
+        const status = document.getElementById('status');
+
+        // Initialize the vision model
+        async function initModel() {
+            try {
+                // Using a lightweight image-to-text model
+                detector = await window.pipeline('image-to-text', 'Xenova/vit-gpt2-image-captioning');
+                status.innerText = "SYSTEM READY";
+                status.classList.replace('text-yellow-500', 'text-green-500');
+            } catch (e) {
+                status.innerText = "LOAD ERROR";
+            }
+        }
+        initModel();
+
+        // Image Preview Logic
+        document.getElementById('imageLoader').onchange = function(e) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                document.getElementById('imgPreview').src = reader.result;
+                document.getElementById('previewContainer').classList.remove('hidden');
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        };
+
+        async function runAnalysis() {
+            const file = document.getElementById('imageLoader').files[0];
+            if (!file) return alert("Load an image first!");
+
+            const btn = document.getElementById('genBtn');
+            const output = document.getElementById('output');
+            
+            btn.innerText = "ANALYZING...";
+            btn.disabled = true;
+
+            const url = document.getElementById('imgPreview').src;
+            const result = await detector(url);
+            const description = result[0].generated_text;
+
+            const platform = document.getElementById('platform').value;
+            const strategy = document.getElementById('strategy').value;
+            const style = document.getElementById('artStyle').value;
+
+            // Crafting Logic
+            let final = (strategy === "Original") ? description : `A professional ${style} of ${description}`;
+            
+            if (platform === "Midjourney") final += " --v 6.0 --ar 16:9";
+            if (platform === "Stable Diffusion") final += ", masterpiece, 8k, cinematic";
+
+            output.innerText = final;
+            output.classList.remove('italic');
+            btn.innerText = "GENERATE PROMPT";
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
