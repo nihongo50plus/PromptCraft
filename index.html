@@ -9,7 +9,7 @@
   :root {
     --bg: #0a0a0f;
     --surface: #111118;
-    --surface2: #18181f;
+    --surface2: #1c1c27;
     --border: #2a2a3a;
     --accent: #c8f53a; 
     --text: #e8e8f0;
@@ -24,9 +24,10 @@
     color: var(--text);
     font-family: 'DM Mono', monospace;
     min-height: 100vh;
-    padding-bottom: 50px;
+    overflow-x: hidden;
   }
 
+  /* Grid Background */
   body::before {
     content: '';
     position: fixed;
@@ -43,46 +44,36 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px 40px;
-    background: rgba(10,10,15,0.9);
+    background: rgba(10,10,15,0.95);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
 
-  .logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 38px;
-    letter-spacing: 2px;
-    color: #fff;
-  }
-
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 38px; letter-spacing: 2px; color: #fff; }
   .logo span { color: var(--accent); }
-
-  .header-badge {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    padding: 5px 12px;
-    border-radius: 4px;
-    text-transform: uppercase;
-  }
+  .header-badge { font-size: 11px; letter-spacing: 2px; color: var(--accent); border: 1px solid var(--accent); padding: 5px 12px; border-radius: 4px; text-transform: uppercase; }
 
   main {
-    max-width: 1600px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 30px 40px;
+    padding: 40px;
     display: grid;
-    grid-template-columns: 400px 1fr;
+    grid-template-columns: 420px 1fr;
     gap: 40px;
+    align-items: start;
   }
 
-  .panel-left { display: flex; flex-direction: column; gap: 20px; }
+  .panel-left, .panel-right { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
 
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
 
   .section-label {
@@ -90,15 +81,15 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
+  .section-label i { color: var(--accent); font-style: normal; font-weight: bold; }
 
-  .section-label i { color: var(--accent); font-style: normal; }
-
-  .api-wrap { position: relative; display: flex; gap: 8px; }
+  /* Inputs */
+  .api-wrap { display: flex; gap: 8px; }
   .api-input {
     flex: 1;
     background: var(--bg);
@@ -106,158 +97,182 @@
     padding: 12px;
     color: var(--text);
     font-family: inherit;
-    border-radius: 4px;
+    border-radius: 6px;
     outline: none;
+    font-size: 13px;
   }
   .api-input:focus { border-color: var(--accent); }
+  
   .btn-icon {
     background: var(--surface2);
     border: 1px solid var(--border);
     color: var(--muted);
-    padding: 0 12px;
+    width: 45px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
+  /* Upload Area */
   .upload-box {
-    border: 1px dashed var(--border);
-    border-radius: 8px;
-    min-height: 180px;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    min-height: 220px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: 0.2s;
-    overflow: hidden;
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255,255,255,0.01);
     position: relative;
+    overflow: hidden;
   }
-  .upload-box:hover { border-color: var(--accent); background: rgba(200,245,58,0.02); }
+  .upload-box:hover { border-color: var(--accent); background: rgba(200,245,58,0.03); }
   
-  #preview-img { width: 100%; height: 100%; object-fit: contain; display: none; }
+  #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
   #preview-img.active { display: block; }
   
-  .upload-prompt { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--muted); }
+  .upload-prompt { text-align: center; color: var(--muted); }
   .upload-prompt.hidden { display: none; }
-  
-  .remove-img {
+
+  .remove-btn {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
+    top: 15px;
+    right: 15px;
     background: var(--danger);
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 6px 12px;
     font-size: 10px;
-    cursor: pointer;
     border-radius: 4px;
+    cursor: pointer;
     display: none;
+    z-index: 10;
   }
 
-  .control-group { margin-bottom: 15px; }
+  /* Dropdowns & Selects */
   select {
     width: 100%;
     background: var(--bg);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 10px;
-    border-radius: 4px;
+    padding: 12px;
+    border-radius: 6px;
     font-family: inherit;
+    appearance: none;
+    cursor: pointer;
   }
 
-  .style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .chip {
     background: var(--bg);
     border: 1px solid var(--border);
-    padding: 8px;
+    padding: 12px;
     font-size: 11px;
     text-align: center;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
     color: var(--muted);
+    transition: 0.2s;
   }
-  .chip.active { border-color: var(--accent); color: var(--accent); background: rgba(200,245,58,0.05); }
+  .chip.active { border-color: var(--accent); color: var(--accent); background: rgba(200,245,58,0.08); font-weight: 500; }
 
   .gen-btn {
     width: 100%;
-    padding: 15px;
+    padding: 18px;
     background: var(--accent);
     color: #000;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 24px;
+    font-size: 26px;
     letter-spacing: 2px;
     cursor: pointer;
     transition: 0.2s;
+    margin-top: 10px;
   }
-  .gen-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; }
+  .gen-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; opacity: 0.5; }
+  .gen-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 0 20px rgba(200,245,58,0.3); }
 
-  .panel-right { display: flex; flex-direction: column; gap: 24px; }
-  
-  .output-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .output-title { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; }
+  /* Output Panel */
+  .output-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; margin-bottom: 20px; color: #fff; }
 
   .output-box {
-    min-height: 400px;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 30px;
-    position: relative;
-  }
-
-  .error-box { color: var(--danger); }
-  .error-box h3 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; margin-bottom: 15px; }
-  .prompt-result {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    padding: 20px;
-    border-radius: 4px;
-    line-height: 1.6;
-    font-size: 14px;
-    border-left: 4px solid var(--accent);
-  }
-
-  .history-card { margin-top: 20px; }
-  .history-header {
+    border-radius: 12px;
+    min-height: 450px;
+    padding: 32px;
     display: flex;
-    justify-content: space-between;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 15px;
+    flex-direction: column;
   }
-  .clear-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 11px; }
-  
-  .history-item {
-    padding: 12px;
+
+  .placeholder-view {
+    margin: auto;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .loader { display: none; flex-direction: column; align-items: center; justify-content: center; margin: auto; gap: 20px; }
+  .loader-bar { width: 200px; height: 2px; background: var(--border); position: relative; overflow: hidden; }
+  .loader-progress { width: 60px; height: 100%; background: var(--accent); position: absolute; animation: move 1.2s infinite ease-in-out; }
+  @keyframes move { 0% { left: -60px; } 100% { left: 200px; } }
+
+  .prompt-result {
     background: var(--bg);
     border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 24px;
+    border-radius: 6px;
+    line-height: 1.8;
+    font-size: 15px;
+    color: var(--text);
+    white-space: pre-wrap;
+    position: relative;
+  }
+  
+  .copy-btn {
+    margin-top: 15px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    padding: 8px 16px;
     border-radius: 4px;
-    margin-bottom: 10px;
-    font-size: 12px;
-    color: var(--muted);
+    font-size: 11px;
     cursor: pointer;
+    align-self: flex-end;
   }
 
-  .loader {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    height: 300px;
-  }
-  .loader-bar { width: 150px; height: 2px; background: var(--border); position: relative; overflow: hidden; }
-  .loader-progress { width: 50px; height: 100%; background: var(--accent); position: absolute; animation: move 1s infinite ease-in-out; }
-  @keyframes move { 0% { left: -50px; } 100% { left: 150px; } }
+  .error-view { color: var(--danger); display: none; }
+  .error-view h3 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; margin-bottom: 10px; }
 
-  @media (max-width: 1000px) {
+  /* History */
+  .history-item {
+    padding: 15px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .history-item:hover { border-color: var(--accent); background: var(--surface2); }
+  .history-time { color: var(--accent); font-weight: bold; margin-right: 10px; }
+
+  footer {
+    padding: 40px;
+    text-align: center;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 1100px) {
     main { grid-template-columns: 1fr; }
   }
 </style>
@@ -274,235 +289,36 @@
     <div class="card">
       <div class="section-label"><i>⚡</i> Google Gemini API Key</div>
       <div class="api-wrap">
-        <input type="password" id="api-key" class="api-input" placeholder="AIzaSy...">
+        <input type="password" id="api-key" class="api-input" placeholder="Enter API Key...">
         <button class="btn-icon" id="toggle-key">👁</button>
       </div>
-      <p style="font-size: 10px; color: var(--muted); margin-top: 8px;">Key is saved locally in your browser.</p>
+      <p style="font-size: 10px; color: var(--muted); margin-top: 10px;">Your key is stored safely in your browser.</p>
     </div>
 
-    <div class="section-label">① Upload Image</div>
+    <div class="section-label">① Upload Reference</div>
     <div class="upload-box" id="drop-zone">
       <img id="preview-img" alt="Preview">
       <div class="upload-prompt" id="upload-prompt">
-        <span style="font-size: 30px;">+</span>
-        <p>Drop image here<br><span style="font-size: 10px;">or click to browse</span></p>
+        <div style="font-size: 40px; color: var(--accent); margin-bottom: 10px;">+</div>
+        <p>Drop image here or click</p>
       </div>
-      <button class="remove-img" id="remove-btn">REMOVE</button>
+      <button class="remove-btn" id="remove-btn">REMOVE IMAGE</button>
     </div>
     <input type="file" id="file-input" accept="image/*" style="display:none">
 
     <div class="card">
-      <div class="control-group">
-        <div class="section-label">② Platform</div>
+      <div style="margin-bottom: 20px;">
+        <div class="section-label">② Target Platform</div>
         <select id="platform">
           <option>Midjourney</option>
-          <option>Stable Diffusion</option>
-          <option>Flux.1</option>
+          <option>Stable Diffusion XL</option>
+          <option>Flux.1 [Dev]</option>
           <option>DALL-E 3</option>
         </select>
       </div>
       
-      <div class="control-group">
-        <div class="section-label">③ Art Style</div>
+      <div>
+        <div class="section-label">③ Output Style</div>
         <div class="style-grid">
           <div class="chip active" data-val="Photorealistic">Photorealistic</div>
-          <div class="chip" data-val="Anime">Anime</div>
-          <div class="chip" data-val="Digital Art">Digital Art</div>
-          <div class="chip" data-val="Cinematic">Cinematic</div>
-        </div>
-      </div>
-    </div>
-
-    <button class="gen-btn" id="gen-btn" disabled>GENERATE PROMPT</button>
-  </div>
-
-  <div class="panel-right">
-    <div class="output-header">
-      <div class="output-title">GENERATED OUTPUT</div>
-      <div id="status-light" style="width:10px; height:10px; border-radius:50%; background:var(--border);"></div>
-    </div>
-
-    <div class="output-box" id="output-area">
-      <div id="placeholder" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; color:var(--muted);">
-        <p>Awaiting image analysis...</p>
-      </div>
-
-      <div class="loader" id="loader">
-        <div class="loader-bar"><div class="loader-progress"></div></div>
-        <p style="font-size: 12px; letter-spacing: 1px;">ANALYZING VISUAL DATA...</p>
-      </div>
-
-      <div id="result-view" style="display:none;">
-        <div class="section-label">Main Prompt</div>
-        <div class="prompt-result" id="prompt-text"></div>
-      </div>
-
-      <div class="error-box" id="error-view" style="display:none;">
-        <h3>ERROR</h3>
-        <p id="error-msg"></p>
-      </div>
-    </div>
-
-    <div class="card history-card">
-      <div class="history-header">
-        <div class="section-label" style="margin:0;">Session History</div>
-        <button class="clear-btn" id="clear-history">CLEAR ALL</button>
-      </div>
-      <div id="history-list"></div>
-    </div>
-  </div>
-</main>
-
-<script>
-let encodedImage = null;
-let mimeType = null;
-let activeStyle = "Photorealistic";
-let history = JSON.parse(localStorage.getItem('prompt_history') || "[]");
-
-// API KEY PERSISTENCE LOGIC
-const apiKeyInput = document.getElementById('api-key');
-
-// 1. Load key from storage on page load
-const savedKey = localStorage.getItem('gemini_api_key');
-if (savedKey) {
-  apiKeyInput.value = savedKey;
-}
-
-// 2. Save key to storage whenever it changes
-apiKeyInput.oninput = () => {
-  localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
-};
-
-const fileInput = document.getElementById('file-input');
-const dropZone = document.getElementById('drop-zone');
-const previewImg = document.getElementById('preview-img');
-const uploadPrompt = document.getElementById('upload-prompt');
-const removeBtn = document.getElementById('remove-btn');
-const genBtn = document.getElementById('gen-btn');
-const historyList = document.getElementById('history-list');
-
-updateHistoryUI();
-
-document.getElementById('toggle-key').onclick = () => {
-  apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
-};
-
-dropZone.onclick = () => fileInput.click();
-fileInput.onchange = (e) => handleFile(e.target.files[0]);
-
-function handleFile(file) {
-  if (!file) return;
-  mimeType = file.type;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    encodedImage = e.target.result.split(',')[1];
-    previewImg.src = e.target.result;
-    previewImg.classList.add('active');
-    uploadPrompt.classList.add('hidden');
-    removeBtn.style.display = 'block';
-    genBtn.disabled = false;
-  };
-  reader.readAsDataURL(file);
-}
-
-removeBtn.onclick = (e) => {
-  e.stopPropagation();
-  encodedImage = null;
-  previewImg.src = "";
-  previewImg.classList.remove('active');
-  uploadPrompt.classList.remove('hidden');
-  removeBtn.style.display = 'none';
-  genBtn.disabled = true;
-};
-
-document.querySelectorAll('.chip').forEach(chip => {
-  chip.onclick = () => {
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    activeStyle = chip.dataset.val;
-  };
-});
-
-async function generate() {
-  const key = apiKeyInput.value.trim();
-  if (!key) { showError("Please enter your API key first."); return; }
-
-  showLoader();
-  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`;
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: `System: Describe this image for a ${document.getElementById('platform').value} prompt. Style: ${activeStyle}. Return only the prompt text.` },
-            { inline_data: { mime_type: mimeType, data: encodedImage } }
-          ]
-        }]
-      })
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || "Unknown API Error");
-
-    const text = data.candidates[0].content.parts[0].text;
-    displayResult(text);
-    addToHistory(text);
-  } catch (err) {
-    showError(err.message);
-  }
-}
-
-function showLoader() {
-  document.getElementById('placeholder').style.display = 'none';
-  document.getElementById('result-view').style.display = 'none';
-  document.getElementById('error-view').style.display = 'none';
-  document.getElementById('loader').style.display = 'flex';
-  document.getElementById('status-light').style.background = 'var(--accent)';
-}
-
-function displayResult(text) {
-  document.getElementById('loader').style.display = 'none';
-  document.getElementById('result-view').style.display = 'block';
-  document.getElementById('prompt-text').textContent = text;
-  document.getElementById('status-light').style.background = 'var(--accent)';
-}
-
-function showError(msg) {
-  document.getElementById('loader').style.display = 'none';
-  document.getElementById('error-view').style.display = 'block';
-  document.getElementById('error-msg').textContent = msg;
-  document.getElementById('status-light').style.background = 'var(--danger)';
-}
-
-function addToHistory(text) {
-  const item = { text, date: new Date().toLocaleTimeString() };
-  history.unshift(item);
-  if (history.length > 5) history.pop();
-  localStorage.setItem('prompt_history', JSON.stringify(history));
-  updateHistoryUI();
-}
-
-function updateHistoryUI() {
-  historyList.innerHTML = history.length ? "" : '<p style="color:var(--muted); font-size:11px;">No prompts generated yet</p>';
-  history.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'history-item';
-    div.innerHTML = `<span style="color:var(--accent)">[${item.date}]</span> ${item.text.substring(0, 60)}...`;
-    div.onclick = () => displayResult(item.text);
-    historyList.appendChild(div);
-  });
-}
-
-document.getElementById('clear-history').onclick = () => {
-  history = [];
-  localStorage.removeItem('prompt_history');
-  updateHistoryUI();
-};
-
-genBtn.onclick = generate;
-</script>
-</body>
-</html>
+          <div
