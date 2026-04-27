@@ -544,8 +544,8 @@
       ? `You are an expert AI image prompt engineer. Analyze the uploaded image deeply and generate a highly detailed, creative, and enhanced prompt optimized for ${platform}. Style: ${style}. Expand beyond what's literally in the image — suggest improvements, mood enhancements, lighting, atmosphere, and artistic direction. Output only the prompt text, no explanations.`
       : `You are an expert AI image prompt engineer. Analyze the uploaded image and generate a precise, detailed prompt that faithfully recreates it for ${platform}. Style: ${style}. Describe subjects, composition, lighting, colors, mood, and technical details accurately. Output only the prompt text, no explanations.`;
 
-    // ── FIXED: using v1beta + gemini-2.0-flash ─────────
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    // ── FIXED: using v1beta + gemini-1.5-flash ─────────
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     try {
       const response = await fetch(endpoint, {
