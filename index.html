@@ -18,623 +18,158 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: 
-      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-    background-size: 30px 30px;
-    z-index: -1;
-  }
-
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 40px;
-    background: rgba(10,10,15,0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
+  header { display: flex; align-items: center; justify-content: space-between; padding: 20px 40px; background: rgba(10,10,15,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
   .logo { font-family: 'Bebas Neue', sans-serif; font-size: 38px; letter-spacing: 2px; color: #fff; }
   .logo span { color: var(--accent); }
-  .header-badge { font-size: 11px; letter-spacing: 2px; color: var(--accent); border: 1px solid var(--accent); padding: 5px 12px; border-radius: 4px; text-transform: uppercase; }
 
-  main {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 40px;
-    display: grid;
-    grid-template-columns: 420px 1fr;
-    gap: 40px;
-    align-items: start;
-  }
-
-  .panel-left, .panel-right { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  }
-
-  .section-label {
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-label i { color: var(--accent); font-style: normal; font-weight: bold; }
-
-  .api-wrap { display: flex; gap: 8px; }
-  .api-input {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    padding: 12px;
-    color: var(--text);
-    font-family: inherit;
-    border-radius: 6px;
-    outline: none;
-    font-size: 13px;
-  }
-  .api-input:focus { border-color: var(--accent); }
+  main { max-width: 1400px; margin: 0 auto; padding: 40px; display: grid; grid-template-columns: 420px 1fr; gap: 40px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
   
-  .btn-icon {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    width: 45px;
-    cursor: pointer;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .upload-box {
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    min-height: 220px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255,255,255,0.01);
-    position: relative;
-    overflow: hidden;
-  }
-  .upload-box:hover { border-color: var(--accent); background: rgba(200,245,58,0.03); }
-  .upload-box.dragover { border-color: var(--accent); background: rgba(200,245,58,0.05); }
-  
+  .api-input { width: 100%; background: var(--bg); border: 1px solid var(--border); padding: 12px; color: var(--text); font-family: inherit; border-radius: 6px; outline: none; margin-bottom: 10px; }
+  .upload-box { border: 2px dashed var(--border); border-radius: 12px; min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
   #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
   #preview-img.active { display: block; }
+
+  select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 6px; font-family: inherit; margin-bottom: 20px; cursor: pointer; }
+
+  .gen-btn { width: 100%; padding: 18px; background: var(--accent); color: #000; border: none; border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 26px; cursor: pointer; transition: 0.2s; }
+  .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .output-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; min-height: 450px; padding: 32px; display: flex; flex-direction: column; }
+  .prompt-result { background: var(--bg); border: 1px solid var(--border); border-left: 4px solid var(--accent); padding: 24px; border-radius: 6px; line-height: 1.8; white-space: pre-wrap; margin-top: 10px; }
+  .copy-btn { margin-top: 15px; background: var(--surface2); border: 1px solid var(--border); color: var(--accent); padding: 8px 16px; border-radius: 4px; cursor: pointer; align-self: flex-end; }
   
-  .upload-prompt { text-align: center; color: var(--muted); }
-  .upload-prompt.hidden { display: none; }
-
-  .remove-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: var(--danger);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    font-size: 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    display: none;
-    z-index: 10;
-  }
-
-  select {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 12px;
-    border-radius: 6px;
-    font-family: inherit;
-    appearance: none;
-    cursor: pointer;
-  }
-  select:focus { outline: none; border-color: var(--accent); }
-
-  .style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .chip {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    padding: 12px;
-    font-size: 11px;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 6px;
-    color: var(--muted);
-    transition: 0.2s;
-  }
-  .chip:hover { border-color: var(--accent); color: var(--accent); }
-  .chip.active { border-color: var(--accent); color: var(--accent); background: rgba(200,245,58,0.08); font-weight: 500; }
-
-  .gen-btn {
-    width: 100%;
-    padding: 18px;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 8px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 26px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: 0.2s;
-    margin-top: 10px;
-  }
-  .gen-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; opacity: 0.5; }
-  .gen-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 0 20px rgba(200,245,58,0.3); }
-
-  .output-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; margin-bottom: 20px; color: #fff; }
-
-  .output-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    min-height: 450px;
-    padding: 32px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .placeholder-view {
-    margin: auto;
-    text-align: center;
-    color: var(--muted);
-    font-size: 14px;
-  }
-
-  .loader { display: none; flex-direction: column; align-items: center; justify-content: center; margin: auto; gap: 20px; }
-  .loader-bar { width: 200px; height: 2px; background: var(--border); position: relative; overflow: hidden; }
-  .loader-progress { width: 60px; height: 100%; background: var(--accent); position: absolute; animation: move 1.2s infinite ease-in-out; }
-  @keyframes move { 0% { left: -60px; } 100% { left: 200px; } }
-
-  .prompt-result {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--accent);
-    padding: 24px;
-    border-radius: 6px;
-    line-height: 1.8;
-    font-size: 15px;
-    color: var(--text);
-    white-space: pre-wrap;
-    position: relative;
-  }
-  
-  .copy-btn {
-    margin-top: 15px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--accent);
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 11px;
-    cursor: pointer;
-    align-self: flex-end;
-    font-family: inherit;
-    transition: 0.2s;
-  }
-  .copy-btn:hover { background: rgba(200,245,58,0.1); }
-
+  .loader { display: none; flex-direction: column; align-items: center; margin: auto; }
   .error-view { color: var(--danger); display: none; }
-  .error-view h3 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; margin-bottom: 10px; }
-  .error-view p { font-size: 13px; line-height: 1.6; }
 
-  .history-item {
-    padding: 15px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: 12px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  .history-item:hover { border-color: var(--accent); background: var(--surface2); }
-  .history-time { color: var(--accent); font-weight: bold; margin-right: 10px; }
-
-  .history-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-
-  .clear-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 5px 12px;
-    border-radius: 4px;
-    font-size: 10px;
-    cursor: pointer;
-    font-family: inherit;
-    letter-spacing: 1px;
-    transition: 0.2s;
-  }
-  .clear-btn:hover { border-color: var(--danger); color: var(--danger); }
-
-  footer {
-    padding: 40px;
-    text-align: center;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 1px;
-  }
-
-  @media (max-width: 1100px) {
-    main { grid-template-columns: 1fr; }
-    header { padding: 16px 20px; }
-    main { padding: 20px; }
-  }
+  @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
 <header>
   <div class="logo">PROMPT<span>CRAFT</span></div>
-  <div class="header-badge">Standalone Intelligence Studio</div>
 </header>
 
 <main>
   <div class="panel-left">
     <div class="card">
-      <div class="section-label"><i>⚡</i> Google Gemini API Key</div>
-      <div class="api-wrap">
-        <input type="password" id="api-key" class="api-input" placeholder="Enter API Key...">
-        <button class="btn-icon" id="toggle-key">👁</button>
-      </div>
-      <p style="font-size: 10px; color: var(--muted); margin-top: 10px;">Your key is stored safely in your browser. Get one at <a href="https://aistudio.google.com" target="_blank" style="color:var(--accent);text-decoration:none;">aistudio.google.com</a></p>
-    </div>
-
-    <div class="section-label">① Upload Reference</div>
-    <div class="upload-box" id="drop-zone">
-      <img id="preview-img" alt="Preview">
-      <div class="upload-prompt" id="upload-prompt">
-        <div style="font-size: 40px; color: var(--accent); margin-bottom: 10px;">+</div>
-        <p>Drop image here or click</p>
-        <p style="font-size: 11px; margin-top: 6px;">PNG, JPG, WEBP</p>
-      </div>
-      <button class="remove-btn" id="remove-btn">REMOVE IMAGE</button>
-    </div>
-    <input type="file" id="file-input" accept="image/*" style="display:none">
-
-    <div class="card">
-      <div style="margin-bottom: 20px;">
-        <div class="section-label">② Target Platform</div>
-        <select id="platform">
-          <option>Midjourney</option>
-          <option>Stable Diffusion XL</option>
-          <option>Flux.1 [Dev]</option>
-          <option>DALL-E 3</option>
-          <option>Perchance</option>
-        </select>
-      </div>
+      <div class="section-label">API Settings</div>
+      <input type="password" id="api-key" class="api-input" placeholder="Paste Gemini Key Here...">
       
-      <div style="margin-bottom: 20px;">
-        <div class="section-label">③ Strategy</div>
-        <select id="strategy">
-          <option value="original">Original (As Is)</option>
-          <option value="personalized">Personalized / Enhanced</option>
-        </select>
-      </div>
+      <div class="section-label">Engine Selection</div>
+      <select id="model-select">
+        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Stable/Higher Quota)</option>
+        <option value="gemini-2.0-flash">Gemini 2.0 Flash (Experimental)</option>
+      </select>
 
-      <div>
-        <div class="section-label">④ Art Style</div>
-        <div class="style-grid">
-          <div class="chip active" data-val="Photorealistic">Photorealistic</div>
-          <div class="chip" data-val="3D Render / CGI">3D Render / CGI</div>
-          <div class="chip" data-val="Anime / Manga">Anime / Manga</div>
-          <div class="chip" data-val="Cyberpunk">Cyberpunk</div>
-          <div class="chip" data-val="Oil Painting">Oil Painting</div>
-          <div class="chip" data-val="Watercolor">Watercolor</div>
-          <div class="chip" data-val="Pixel Art">Pixel Art</div>
-          <div class="chip" data-val="Dark Fantasy">Dark Fantasy</div>
-        </div>
+      <div class="section-label">Upload Reference</div>
+      <div class="upload-box" id="drop-zone">
+        <img id="preview-img" alt="Preview">
+        <p id="upload-text">Click or Drop Image</p>
       </div>
-
-      <button class="gen-btn" id="gen-btn" disabled>GENERATE PROMPT</button>
+      <input type="file" id="file-input" accept="image/*" style="display:none">
+      
+      <button class="gen-btn" id="gen-btn" disabled style="margin-top:20px">GENERATE PROMPT</button>
     </div>
   </div>
 
   <div class="panel-right">
-    <div class="output-title">Generated Output</div>
-
-    <div class="output-box" id="output-box">
-      <div class="placeholder-view" id="placeholder">
-        <div style="font-size: 48px; margin-bottom: 16px; opacity:0.2;">◈</div>
-        <p>Upload an image and click generate.</p>
-        <p style="margin-top: 8px; font-size: 12px;">Your crafted prompt will appear here.</p>
+    <div class="output-box">
+      <div id="placeholder" style="margin:auto; color:var(--muted)">Ready for analysis...</div>
+      <div class="loader" id="loader">Processing visual data...</div>
+      <div id="result-view" style="display:none; flex-direction:column">
+        <div class="section-label">Optimized Output</div>
+        <div class="prompt-result" id="prompt-text"></div>
+        <button class="copy-btn" id="copy-btn">COPY PROMPT</button>
       </div>
-
-      <div class="loader" id="loader">
-        <div style="font-size: 12px; color: var(--muted); letter-spacing: 2px;">ANALYZING IMAGE...</div>
-        <div class="loader-bar"><div class="loader-progress"></div></div>
-        <div style="font-size: 10px; color: var(--muted);">Powered by Gemini 2.0 Flash</div>
-      </div>
-
       <div class="error-view" id="error-view">
-        <h3>ERROR</h3>
+        <h3 style="font-family:'Bebas Neue'">System Alert</h3>
         <p id="error-msg"></p>
       </div>
-
-      <div id="result-content" style="display:none; flex-direction:column; gap:0;">
-        <div style="font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:16px;">
-          GENERATED PROMPT — <span id="result-meta" style="color:var(--accent);"></span>
-        </div>
-        <div class="prompt-result" id="prompt-text"></div>
-        <button class="copy-btn" id="copy-btn">⊕ COPY TO CLIPBOARD</button>
-      </div>
-    </div>
-
-    <div class="card" id="history-card" style="display:none;">
-      <div class="history-header">
-        <div class="section-label" style="margin-bottom:0;">Session History</div>
-        <button class="clear-btn" id="clear-history">CLEAR ALL</button>
-      </div>
-      <div id="history-list"></div>
     </div>
   </div>
 </main>
 
-<footer>
-  PROMPTCRAFT — STANDALONE AI PROMPT STUDIO — POWERED BY GEMINI 2.0 FLASH VISION
-</footer>
-
 <script>
-  // ── State ──────────────────────────────────────────────
-  let imageBase64 = null;
-  let imageMimeType = null;
-  let selectedStyle = 'Photorealistic';
-  const history = [];
+let encodedImage = null;
+let mimeType = null;
+const apiKeyInput = document.getElementById('api-key');
+const genBtn = document.getElementById('gen-btn');
+const modelSelect = document.getElementById('model-select');
 
-  // ── DOM refs ───────────────────────────────────────────
-  const apiKeyInput   = document.getElementById('api-key');
-  const toggleKeyBtn  = document.getElementById('toggle-key');
-  const dropZone      = document.getElementById('drop-zone');
-  const fileInput     = document.getElementById('file-input');
-  const previewImg    = document.getElementById('preview-img');
-  const uploadPrompt  = document.getElementById('upload-prompt');
-  const removeBtn     = document.getElementById('remove-btn');
-  const platformSel   = document.getElementById('platform');
-  const strategySel   = document.getElementById('strategy');
-  const genBtn        = document.getElementById('gen-btn');
-  const placeholder   = document.getElementById('placeholder');
-  const loader        = document.getElementById('loader');
-  const errorView     = document.getElementById('error-view');
-  const errorMsg      = document.getElementById('error-msg');
-  const resultContent = document.getElementById('result-content');
-  const promptText    = document.getElementById('prompt-text');
-  const resultMeta    = document.getElementById('result-meta');
-  const copyBtn       = document.getElementById('copy-btn');
-  const historyCard   = document.getElementById('history-card');
-  const historyList   = document.getElementById('history-list');
-  const clearHistory  = document.getElementById('clear-history');
+apiKeyInput.value = localStorage.getItem('gemini_api_key') || "";
+apiKeyInput.oninput = () => localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
 
-  // ── Persist API key ────────────────────────────────────
-  const savedKey = localStorage.getItem('gemini_api_key');
-  if (savedKey) apiKeyInput.value = savedKey;
-  apiKeyInput.addEventListener('input', () => {
-    localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
-  });
+document.getElementById('drop-zone').onclick = () => document.getElementById('file-input').click();
+document.getElementById('file-input').onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  mimeType = file.type;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    encodedImage = e.target.result.split(',')[1];
+    document.getElementById('preview-img').src = e.target.result;
+    document.getElementById('preview-img').style.display = 'block';
+    document.getElementById('upload-text').style.display = 'none';
+    genBtn.disabled = false;
+  };
+  reader.readAsDataURL(file);
+};
 
-  toggleKeyBtn.addEventListener('click', () => {
-    apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
-  });
+async function generate() {
+  const key = apiKeyInput.value.trim();
+  const selectedModel = modelSelect.value;
+  if (!key) return;
 
-  // ── Style chips ────────────────────────────────────────
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      selectedStyle = chip.dataset.val;
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('result-view').style.display = 'none';
+  document.getElementById('error-view').style.display = 'none';
+  document.getElementById('loader').style.display = 'flex';
+
+  // DYNAMIC URL based on model selection
+  const apiVersion = selectedModel.includes('2.0') ? 'v1beta' : 'v1';
+  const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${selectedModel}:generateContent?key=${key}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: "Act as an expert prompt engineer. Analyze this image and create a highly detailed Midjourney/Stable Diffusion prompt based on its composition and style." },
+            { inline_data: { mime_type: mimeType, data: encodedImage } }
+          ]
+        }]
+      })
     });
-  });
 
-  // ── Image upload ───────────────────────────────────────
-  dropZone.addEventListener('click', (e) => {
-    if (e.target !== removeBtn) fileInput.click();
-  });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || "Quota limit reached. Try switching engines.");
 
-  dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('dragover');
-  });
-
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-
-  dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) loadImage(file);
-  });
-
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) loadImage(fileInput.files[0]);
-  });
-
-  function loadImage(file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      imageBase64 = e.target.result.split(',')[1];
-      imageMimeType = file.type;
-      previewImg.src = e.target.result;
-      previewImg.classList.add('active');
-      uploadPrompt.classList.add('hidden');
-      removeBtn.style.display = 'block';
-      genBtn.disabled = false;
-    };
-    reader.readAsDataURL(file);
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('result-view').style.display = 'flex';
+    document.getElementById('prompt-text').textContent = data.candidates[0].content.parts[0].text;
+  } catch (err) {
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('error-view').style.display = 'block';
+    document.getElementById('error-msg').textContent = err.message;
   }
+}
 
-  removeBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    imageBase64 = null;
-    imageMimeType = null;
-    previewImg.src = '';
-    previewImg.classList.remove('active');
-    uploadPrompt.classList.remove('hidden');
-    removeBtn.style.display = 'none';
-    fileInput.value = '';
-    genBtn.disabled = true;
-  });
+document.getElementById('copy-btn').onclick = () => {
+  navigator.clipboard.writeText(document.getElementById('prompt-text').textContent);
+  const btn = document.getElementById('copy-btn');
+  btn.textContent = "COPIED!";
+  setTimeout(() => btn.textContent = "COPY PROMPT", 2000);
+};
 
-  // ── UI helpers ─────────────────────────────────────────
-  function showState(state) {
-    placeholder.style.display   = 'none';
-    loader.style.display         = 'none';
-    errorView.style.display      = 'none';
-    resultContent.style.display  = 'none';
-
-    if (state === 'placeholder') placeholder.style.display = 'flex';
-    if (state === 'loading')     loader.style.display      = 'flex';
-    if (state === 'error')       errorView.style.display   = 'flex';
-    if (state === 'result')      resultContent.style.display = 'flex';
-  }
-
-  // ── Generate ───────────────────────────────────────────
-  genBtn.addEventListener('click', generatePrompt);
-
-  async function generatePrompt() {
-    const apiKey = apiKeyInput.value.trim();
-    if (!apiKey) { alert('Please enter your Gemini API key.'); return; }
-    if (!imageBase64) { alert('Please upload an image first.'); return; }
-
-    const platform  = platformSel.value;
-    const strategy  = strategySel.value;
-    const style     = selectedStyle;
-
-    genBtn.disabled = true;
-    showState('loading');
-
-    const systemPrompt = strategy === 'personalized'
-      ? `You are an expert AI image prompt engineer. Analyze the uploaded image deeply and generate a highly detailed, creative, and enhanced prompt optimized for ${platform}. Style: ${style}. Expand beyond what's literally in the image — suggest improvements, mood enhancements, lighting, atmosphere, and artistic direction. Output only the prompt text, no explanations.`
-      : `You are an expert AI image prompt engineer. Analyze the uploaded image and generate a precise, detailed prompt that faithfully recreates it for ${platform}. Style: ${style}. Describe subjects, composition, lighting, colors, mood, and technical details accurately. Output only the prompt text, no explanations.`;
-
-    // ── FIXED: using v1beta + gemini-2.0-flash ─────────
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: systemPrompt },
-              { inline_data: { mime_type: imageMimeType, data: imageBase64 } }
-            ]
-          }],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 1024
-          }
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error?.message || `HTTP ${response.status}`);
-      }
-
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!text) throw new Error('No content returned from Gemini.');
-
-      promptText.textContent = text;
-      resultMeta.textContent = `${platform} · ${style} · ${strategy === 'personalized' ? 'Enhanced' : 'Original'}`;
-      showState('result');
-
-      // Add to history
-      addToHistory(text, platform, style);
-
-    } catch (err) {
-      errorMsg.textContent = err.message;
-      showState('error');
-    } finally {
-      genBtn.disabled = false;
-    }
-  }
-
-  // ── Copy ───────────────────────────────────────────────
-  copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(promptText.textContent).then(() => {
-      copyBtn.textContent = '✓ COPIED!';
-      setTimeout(() => copyBtn.textContent = '⊕ COPY TO CLIPBOARD', 2000);
-    });
-  });
-
-  // ── History ────────────────────────────────────────────
-  function addToHistory(text, platform, style) {
-    const entry = {
-      text,
-      platform,
-      style,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    history.unshift(entry);
-    renderHistory();
-    historyCard.style.display = 'block';
-  }
-
-  function renderHistory() {
-    historyList.innerHTML = '';
-    history.forEach((entry, i) => {
-      const item = document.createElement('div');
-      item.className = 'history-item';
-      item.innerHTML = `
-        <span class="history-time">${entry.time}</span>
-        <span style="color:var(--accent);font-size:10px;">${entry.platform} · ${entry.style}</span>
-        <div style="margin-top:8px;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${entry.text.substring(0, 120)}...</div>
-      `;
-      item.addEventListener('click', () => {
-        promptText.textContent = entry.text;
-        resultMeta.textContent = `${entry.platform} · ${entry.style}`;
-        showState('result');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-      historyList.appendChild(item);
-    });
-  }
-
-  clearHistory.addEventListener('click', () => {
-    history.length = 0;
-    historyList.innerHTML = '';
-    historyCard.style.display = 'none';
-  });
+genBtn.onclick = generate;
 </script>
 </body>
 </html>
