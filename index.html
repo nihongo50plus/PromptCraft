@@ -27,7 +27,6 @@
     overflow-x: hidden;
   }
 
-  /* Grid Background */
   body::before {
     content: '';
     position: fixed;
@@ -88,7 +87,6 @@
   }
   .section-label i { color: var(--accent); font-style: normal; font-weight: bold; }
 
-  /* Inputs */
   .api-wrap { display: flex; gap: 8px; }
   .api-input {
     flex: 1;
@@ -115,7 +113,6 @@
     justify-content: center;
   }
 
-  /* Upload Area */
   .upload-box {
     border: 2px dashed var(--border);
     border-radius: 12px;
@@ -131,6 +128,7 @@
     overflow: hidden;
   }
   .upload-box:hover { border-color: var(--accent); background: rgba(200,245,58,0.03); }
+  .upload-box.dragover { border-color: var(--accent); background: rgba(200,245,58,0.05); }
   
   #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
   #preview-img.active { display: block; }
@@ -153,7 +151,6 @@
     z-index: 10;
   }
 
-  /* Dropdowns & Selects */
   select {
     width: 100%;
     background: var(--bg);
@@ -165,6 +162,7 @@
     appearance: none;
     cursor: pointer;
   }
+  select:focus { outline: none; border-color: var(--accent); }
 
   .style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .chip {
@@ -178,6 +176,7 @@
     color: var(--muted);
     transition: 0.2s;
   }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
   .chip.active { border-color: var(--accent); color: var(--accent); background: rgba(200,245,58,0.08); font-weight: 500; }
 
   .gen-btn {
@@ -197,7 +196,6 @@
   .gen-btn:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; opacity: 0.5; }
   .gen-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 0 20px rgba(200,245,58,0.3); }
 
-  /* Output Panel */
   .output-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; margin-bottom: 20px; color: #fff; }
 
   .output-box {
@@ -245,12 +243,15 @@
     font-size: 11px;
     cursor: pointer;
     align-self: flex-end;
+    font-family: inherit;
+    transition: 0.2s;
   }
+  .copy-btn:hover { background: rgba(200,245,58,0.1); }
 
   .error-view { color: var(--danger); display: none; }
   .error-view h3 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; margin-bottom: 10px; }
+  .error-view p { font-size: 13px; line-height: 1.6; }
 
-  /* History */
   .history-item {
     padding: 15px;
     background: var(--bg);
@@ -264,6 +265,27 @@
   .history-item:hover { border-color: var(--accent); background: var(--surface2); }
   .history-time { color: var(--accent); font-weight: bold; margin-right: 10px; }
 
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .clear-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 1px;
+    transition: 0.2s;
+  }
+  .clear-btn:hover { border-color: var(--danger); color: var(--danger); }
+
   footer {
     padding: 40px;
     text-align: center;
@@ -274,6 +296,8 @@
 
   @media (max-width: 1100px) {
     main { grid-template-columns: 1fr; }
+    header { padding: 16px 20px; }
+    main { padding: 20px; }
   }
 </style>
 </head>
@@ -292,7 +316,7 @@
         <input type="password" id="api-key" class="api-input" placeholder="Enter API Key...">
         <button class="btn-icon" id="toggle-key">👁</button>
       </div>
-      <p style="font-size: 10px; color: var(--muted); margin-top: 10px;">Your key is stored safely in your browser.</p>
+      <p style="font-size: 10px; color: var(--muted); margin-top: 10px;">Your key is stored safely in your browser. Get one at <a href="https://aistudio.google.com" target="_blank" style="color:var(--accent);text-decoration:none;">aistudio.google.com</a></p>
     </div>
 
     <div class="section-label">① Upload Reference</div>
@@ -301,6 +325,7 @@
       <div class="upload-prompt" id="upload-prompt">
         <div style="font-size: 40px; color: var(--accent); margin-bottom: 10px;">+</div>
         <p>Drop image here or click</p>
+        <p style="font-size: 11px; margin-top: 6px;">PNG, JPG, WEBP</p>
       </div>
       <button class="remove-btn" id="remove-btn">REMOVE IMAGE</button>
     </div>
@@ -314,11 +339,302 @@
           <option>Stable Diffusion XL</option>
           <option>Flux.1 [Dev]</option>
           <option>DALL-E 3</option>
+          <option>Perchance</option>
         </select>
       </div>
       
+      <div style="margin-bottom: 20px;">
+        <div class="section-label">③ Strategy</div>
+        <select id="strategy">
+          <option value="original">Original (As Is)</option>
+          <option value="personalized">Personalized / Enhanced</option>
+        </select>
+      </div>
+
       <div>
-        <div class="section-label">③ Output Style</div>
+        <div class="section-label">④ Art Style</div>
         <div class="style-grid">
           <div class="chip active" data-val="Photorealistic">Photorealistic</div>
-          <div
+          <div class="chip" data-val="3D Render / CGI">3D Render / CGI</div>
+          <div class="chip" data-val="Anime / Manga">Anime / Manga</div>
+          <div class="chip" data-val="Cyberpunk">Cyberpunk</div>
+          <div class="chip" data-val="Oil Painting">Oil Painting</div>
+          <div class="chip" data-val="Watercolor">Watercolor</div>
+          <div class="chip" data-val="Pixel Art">Pixel Art</div>
+          <div class="chip" data-val="Dark Fantasy">Dark Fantasy</div>
+        </div>
+      </div>
+
+      <button class="gen-btn" id="gen-btn" disabled>GENERATE PROMPT</button>
+    </div>
+  </div>
+
+  <div class="panel-right">
+    <div class="output-title">Generated Output</div>
+
+    <div class="output-box" id="output-box">
+      <div class="placeholder-view" id="placeholder">
+        <div style="font-size: 48px; margin-bottom: 16px; opacity:0.2;">◈</div>
+        <p>Upload an image and click generate.</p>
+        <p style="margin-top: 8px; font-size: 12px;">Your crafted prompt will appear here.</p>
+      </div>
+
+      <div class="loader" id="loader">
+        <div style="font-size: 12px; color: var(--muted); letter-spacing: 2px;">ANALYZING IMAGE...</div>
+        <div class="loader-bar"><div class="loader-progress"></div></div>
+        <div style="font-size: 10px; color: var(--muted);">Powered by Gemini 2.0 Flash</div>
+      </div>
+
+      <div class="error-view" id="error-view">
+        <h3>ERROR</h3>
+        <p id="error-msg"></p>
+      </div>
+
+      <div id="result-content" style="display:none; flex-direction:column; gap:0;">
+        <div style="font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:16px;">
+          GENERATED PROMPT — <span id="result-meta" style="color:var(--accent);"></span>
+        </div>
+        <div class="prompt-result" id="prompt-text"></div>
+        <button class="copy-btn" id="copy-btn">⊕ COPY TO CLIPBOARD</button>
+      </div>
+    </div>
+
+    <div class="card" id="history-card" style="display:none;">
+      <div class="history-header">
+        <div class="section-label" style="margin-bottom:0;">Session History</div>
+        <button class="clear-btn" id="clear-history">CLEAR ALL</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  PROMPTCRAFT — STANDALONE AI PROMPT STUDIO — POWERED BY GEMINI 2.0 FLASH VISION
+</footer>
+
+<script>
+  // ── State ──────────────────────────────────────────────
+  let imageBase64 = null;
+  let imageMimeType = null;
+  let selectedStyle = 'Photorealistic';
+  const history = [];
+
+  // ── DOM refs ───────────────────────────────────────────
+  const apiKeyInput   = document.getElementById('api-key');
+  const toggleKeyBtn  = document.getElementById('toggle-key');
+  const dropZone      = document.getElementById('drop-zone');
+  const fileInput     = document.getElementById('file-input');
+  const previewImg    = document.getElementById('preview-img');
+  const uploadPrompt  = document.getElementById('upload-prompt');
+  const removeBtn     = document.getElementById('remove-btn');
+  const platformSel   = document.getElementById('platform');
+  const strategySel   = document.getElementById('strategy');
+  const genBtn        = document.getElementById('gen-btn');
+  const placeholder   = document.getElementById('placeholder');
+  const loader        = document.getElementById('loader');
+  const errorView     = document.getElementById('error-view');
+  const errorMsg      = document.getElementById('error-msg');
+  const resultContent = document.getElementById('result-content');
+  const promptText    = document.getElementById('prompt-text');
+  const resultMeta    = document.getElementById('result-meta');
+  const copyBtn       = document.getElementById('copy-btn');
+  const historyCard   = document.getElementById('history-card');
+  const historyList   = document.getElementById('history-list');
+  const clearHistory  = document.getElementById('clear-history');
+
+  // ── Persist API key ────────────────────────────────────
+  const savedKey = localStorage.getItem('gemini_api_key');
+  if (savedKey) apiKeyInput.value = savedKey;
+  apiKeyInput.addEventListener('input', () => {
+    localStorage.setItem('gemini_api_key', apiKeyInput.value.trim());
+  });
+
+  toggleKeyBtn.addEventListener('click', () => {
+    apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
+  });
+
+  // ── Style chips ────────────────────────────────────────
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      selectedStyle = chip.dataset.val;
+    });
+  });
+
+  // ── Image upload ───────────────────────────────────────
+  dropZone.addEventListener('click', (e) => {
+    if (e.target !== removeBtn) fileInput.click();
+  });
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadImage(file);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) loadImage(fileInput.files[0]);
+  });
+
+  function loadImage(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imageBase64 = e.target.result.split(',')[1];
+      imageMimeType = file.type;
+      previewImg.src = e.target.result;
+      previewImg.classList.add('active');
+      uploadPrompt.classList.add('hidden');
+      removeBtn.style.display = 'block';
+      genBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    imageBase64 = null;
+    imageMimeType = null;
+    previewImg.src = '';
+    previewImg.classList.remove('active');
+    uploadPrompt.classList.remove('hidden');
+    removeBtn.style.display = 'none';
+    fileInput.value = '';
+    genBtn.disabled = true;
+  });
+
+  // ── UI helpers ─────────────────────────────────────────
+  function showState(state) {
+    placeholder.style.display   = 'none';
+    loader.style.display         = 'none';
+    errorView.style.display      = 'none';
+    resultContent.style.display  = 'none';
+
+    if (state === 'placeholder') placeholder.style.display = 'flex';
+    if (state === 'loading')     loader.style.display      = 'flex';
+    if (state === 'error')       errorView.style.display   = 'flex';
+    if (state === 'result')      resultContent.style.display = 'flex';
+  }
+
+  // ── Generate ───────────────────────────────────────────
+  genBtn.addEventListener('click', generatePrompt);
+
+  async function generatePrompt() {
+    const apiKey = apiKeyInput.value.trim();
+    if (!apiKey) { alert('Please enter your Gemini API key.'); return; }
+    if (!imageBase64) { alert('Please upload an image first.'); return; }
+
+    const platform  = platformSel.value;
+    const strategy  = strategySel.value;
+    const style     = selectedStyle;
+
+    genBtn.disabled = true;
+    showState('loading');
+
+    const systemPrompt = strategy === 'personalized'
+      ? `You are an expert AI image prompt engineer. Analyze the uploaded image deeply and generate a highly detailed, creative, and enhanced prompt optimized for ${platform}. Style: ${style}. Expand beyond what's literally in the image — suggest improvements, mood enhancements, lighting, atmosphere, and artistic direction. Output only the prompt text, no explanations.`
+      : `You are an expert AI image prompt engineer. Analyze the uploaded image and generate a precise, detailed prompt that faithfully recreates it for ${platform}. Style: ${style}. Describe subjects, composition, lighting, colors, mood, and technical details accurately. Output only the prompt text, no explanations.`;
+
+    // ── FIXED: using v1beta + gemini-2.0-flash ─────────
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: systemPrompt },
+              { inline_data: { mime_type: imageMimeType, data: imageBase64 } }
+            ]
+          }],
+          generationConfig: {
+            temperature: 0.8,
+            maxOutputTokens: 1024
+          }
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error?.message || `HTTP ${response.status}`);
+      }
+
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error('No content returned from Gemini.');
+
+      promptText.textContent = text;
+      resultMeta.textContent = `${platform} · ${style} · ${strategy === 'personalized' ? 'Enhanced' : 'Original'}`;
+      showState('result');
+
+      // Add to history
+      addToHistory(text, platform, style);
+
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      showState('error');
+    } finally {
+      genBtn.disabled = false;
+    }
+  }
+
+  // ── Copy ───────────────────────────────────────────────
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(promptText.textContent).then(() => {
+      copyBtn.textContent = '✓ COPIED!';
+      setTimeout(() => copyBtn.textContent = '⊕ COPY TO CLIPBOARD', 2000);
+    });
+  });
+
+  // ── History ────────────────────────────────────────────
+  function addToHistory(text, platform, style) {
+    const entry = {
+      text,
+      platform,
+      style,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    history.unshift(entry);
+    renderHistory();
+    historyCard.style.display = 'block';
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = '';
+    history.forEach((entry, i) => {
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = `
+        <span class="history-time">${entry.time}</span>
+        <span style="color:var(--accent);font-size:10px;">${entry.platform} · ${entry.style}</span>
+        <div style="margin-top:8px;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${entry.text.substring(0, 120)}...</div>
+      `;
+      item.addEventListener('click', () => {
+        promptText.textContent = entry.text;
+        resultMeta.textContent = `${entry.platform} · ${entry.style}`;
+        showState('result');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      historyList.appendChild(item);
+    });
+  }
+
+  clearHistory.addEventListener('click', () => {
+    history.length = 0;
+    historyList.innerHTML = '';
+    historyCard.style.display = 'none';
+  });
+</script>
+</body>
+</html>
