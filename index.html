@@ -217,4 +217,298 @@
 
   #preview-img {
     width: 100%;
-    max-height: 280px
+    max-height: 280px;
+    object-fit: cover;
+    display: none;
+    border-radius: 0;
+  }
+
+  #preview-img.active { display: block; }
+
+  .preview-bar {
+    display: none;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .preview-bar.active { display: flex; }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .controls-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .control-group { display: flex; flex-direction: column; gap: 8px; }
+
+  select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 10px 14px;
+    width: 100%;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b85' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    transition: border-color 0.2s;
+  }
+
+  select:focus { border-color: var(--accent); }
+
+  .style-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .style-chip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  .style-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .style-chip.active {
+    background: rgba(200,245,58,0.1);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .generate-btn {
+    background: var(--accent);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    padding: 16px 24px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .generate-btn:hover { box-shadow: 0 0 30px rgba(200,245,58,0.4); }
+  .generate-btn:disabled {
+    background: var(--surface2);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  .panel-right { display: flex; flex-direction: column; gap: 24px; }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .output-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--text);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+
+  .status-dot.active { background: var(--accent); animation: pulse 1.5s infinite; }
+  .status-dot.done { background: var(--accent); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .output-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-height: 300px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .output-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    gap: 16px;
+    color: var(--muted);
+  }
+
+  .placeholder-icon { font-size: 32px; opacity: 0.3; }
+
+  .loading-wrap {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    gap: 20px;
+  }
+
+  .loading-wrap.active { display: flex; }
+
+  .scanner {
+    width: 200px;
+    height: 2px;
+    background: var(--border);
+    overflow: hidden;
+  }
+
+  .scanner-bar {
+    height: 100%;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scan 1.5s ease-in-out infinite;
+  }
+
+  @keyframes scan {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+  }
+
+  .result-wrap {
+    display: none;
+    padding: 28px;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .result-wrap.active { display: flex; }
+
+  .meta-tag {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    background: rgba(200,245,58,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(200,245,58,0.2);
+    margin-right: 8px;
+  }
+
+  .prompt-section {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-top: 10px;
+  }
+
+  .section-header {
+    padding: 10px 16px;
+    background: rgba(200,245,58,0.05);
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .section-content {
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  .error-wrap {
+    display: none;
+    padding: 28px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .error-wrap.active { display: flex; }
+  .error-title { font-family: 'Bebas Neue', sans-serif; color: var(--danger); font-size: 22px; }
+
+  .token-bar {
+    display: flex;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; padding: 20px; }
+    .panel-left { position: static; }
+  }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<header>
+  <div class="logo">Prompt<span>Craft</span></div>
+  <div class="header-badge">Standalone Intelligence Studio</div>
+</header>
+
+<main>
+  <div class="panel-left">
+    <div class="api-block">
+      <div class="section-label">⚡ Google Gemini API Key</div>
+      <div class="api-input-wrap">
+        <input type="password" id="api-key" class="api-input" placeholder="AIzaSy..." autocomplete="off">
+        <button class="api-toggle" id="toggle-key">👁</button>
+      </div>
+      <div class="api-note">
+        Your key stays in the browser. Get one at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a>
+      </div>
+    </div>
+
+    <div class="section-label">① Upload Image</div>
+    <div class="upload-area" id="upload-area">
+      <img id="preview-img" alt="Preview">
+      <div class="upload-inner" id="upload-inner">
+        <div class="upload-icon">⊕</div>
+        <div class="upload-text">
+          <strong>Drop image here</strong><br>
+          or click to browse
+        </div>
+      </div>
+      <div class="preview-bar" id="preview-bar">
+        <span id="file-name" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px;"></span>
